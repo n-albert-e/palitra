@@ -1,28 +1,43 @@
+[build-system]
+requires = ["setuptools>=65.5.1", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "palitra"
 version = "0.0.1"
-description = "Utils for colored (async/sync) functions"
+description = "Run async functions seamlessly from sync code using a persistent background event loop."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
 
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["LICENSE", "README.md", "palitra/__init__.py", "palitra/core.py"]
+
 [tool.ruff.lint]
 select = [
-    # pycodestyle
+    # pycodestyle errors and warnings
     "E",
-    # Pyflakes
+    # Pyflakes error checks (unused imports, undefined names, etc.)
     "F",
-    # pyupgrade
+    # pyupgrade: automatic syntax upgrades for modern Python
     "UP",
-    # flake8-bugbear
+    # flake8-bugbear: opinionated code-quality checks
     "B",
-    # flake8-simplify
+    # flake8-simplify: suggestions for simpler code
     "SIM",
-    # isort
+    # isort: import sorting issues
     "I",
+    # flake8-comprehensions: better comprehension usage (enabled by Ruff implicitly)
+    "C",
+    # flake8-builtins: avoid shadowing Python builtins
+    "A",
+    # flake8-annotations: enforce type annotations
+    "ANN",
 ]
-
 [dependency-groups]
-dev = [
-    "pytest>=8.4.1",
-]
+dev = ["pytest>=8.4.1", "uvloop>=0.21.0"]
+
+[tool.pytest.ini_options]
+filterwarnings = ["ignore::DeprecationWarning:multiprocessing.popen_fork"]
