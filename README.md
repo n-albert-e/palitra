@@ -6,6 +6,8 @@
 
 > This implementation was inspired (a.k.a. stolen) from [Running async code from sync in Python asyncio](https://death.andgravity.com/asyncio-bridge) by [lemon24](https://github.com/lemon24)
 
+> See also https://github.com/celery/celery/discussions/9058
+
 A bridge between synchronous and asynchronous Python code that maintains a persistent event loop, enabling you to call async functions from synchronous code.
 
 ## ⚠️ Important Caveats
@@ -26,7 +28,7 @@ A bridge between synchronous and asynchronous Python code that maintains a persi
 - Lightweight with no external dependencies
 
 
-## Usage Example: Flask with aiohttp
+## Usage Examples: Flask with aiohttp, Celery
 
 > **Warning**: This example demonstrates the concept but hasn't been stress-tested for production workloads.
 
@@ -62,6 +64,28 @@ if __name__ == '__main__':
     app.run()
 ```
 
+
+```python
+from palitra import EventLoopThreadRunner
+from celery import Celery
+import asyncio
+
+celery_app = Celery('tasks', broker='pyamqp://guest@localhost//')
+
+async def async_processing(data: str) -> dict:
+    """Example async processing function"""
+    await asyncio.sleep(0.5)  # Simulate async I/O
+    return {"input": data, "processed": True, "timestamp": time.time()}
+
+@celery_app.task(name="process_async")
+def sync_celery_wrapper(data: str):
+    """
+    Synchronous Celery task that executes async code.
+    Usage:
+        process_async.delay("test data")
+    """
+    return EventLoopThreadRunner.run(async_processing(data))
+```
 ## API Reference
 
 ### `EventLoopThreadRunner.run(coro: Coroutine) -> Any`
@@ -95,12 +119,20 @@ Get the running event loop instance from thread.
 
 ## Comparison with Alternatives
 
-| Feature                | EventLoopThreadRunner | asyncio.run | nest_asyncio |
-|------------------------|-----------------------|-------------|--------------|
-| Production Readiness   | ❌ Not verified       | ✅ Yes      | ✅ Yes       |
-| Persistent loop        | ✅ Yes                | ❌ No       | ✅ Yes       |
-| Thread Safety          | ⚠️ Limited testing    | ❌ No       | ❌ No        |
-| Clean shutdown         | ⚠️ Partial            | ✅ Yes      | ❌ Sometimes |
+| Feature                | EventLoopThreadRunner | asyncio.run | nest_asyncio | ASGIRef (Django)  |
+|------------------------|-----------------------|-------------|--------------|-------------------|
+| **Loop Persistence**   | ✅ Persistent         | ❌ New per call | ✅ Patches existing | ❌ New per call  |
+| **Thread Safety**      | ⚠️ Basic              | ❌ No        | ❌ No         | ✅ Robust         |
+| **Production Ready**   | ❌ Experimental       | ✅ Yes       | ✅ Yes        | ✅ Yes            |
+| **State Preservation** | ✅ Yes                | ❌ No        | ✅ Yes        | ❌ No             |
+| **Clean Shutdown**     | ⚠️ Partial            | ✅ Yes       | ❌ Sometimes  | ✅ Yes            |
+| **No Monkey Patching** | ✅ Yes                | ✅ Yes       | ❌ Requires .apply()| ✅ No       |
+| **Concurrency**        | ✅ Full               | ❌ Per-call  | ✅ Limited    | ❌ Per-call       |
+
+Key differences:
+- **ASGIRef**: Uses `asyncio.run()` internally but adds thread-sensitive synchronization
+- **palitra**: True persistent loop enables shared async state between calls
+- **nest_asyncio**: Enables reentrancy but risks subtle bugs from patching
 
 ## Contributing
 
