@@ -37,7 +37,12 @@ select = [
     "ANN",
 ]
 [dependency-groups]
-dev = ["pytest>=8.4.1", "uvloop>=0.21.0"]
+dev = [
+    "asgiref>=3.8.1",
+    "pytest>=8.4.1",
+    "pytest-asyncio>=1.0.0",
+    "uvloop>=0.21.0",
+]
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore::DeprecationWarning:multiprocessing.popen_fork"]

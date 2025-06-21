@@ -9,7 +9,7 @@ from typing import Any, Never
 import pytest
 import uvloop
 
-from . import (
+from palitra import (
     EventLoopThreadRunner,
     gather,
     is_runner_alive,
@@ -129,7 +129,7 @@ def test_high_level_gather() -> None:
 
 def test_runner_atexit_behavior(capfd: pytest.CaptureFixture[str]) -> None:
     def child_process() -> None:
-        from . import EventLoopThreadRunner
+        from palitra import EventLoopThreadRunner
 
         runner = EventLoopThreadRunner()
         loop = runner.get_loop()

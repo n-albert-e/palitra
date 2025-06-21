@@ -193,5 +193,6 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-# uv lockfile
+# uv files
 uv.lock
+.python-version
