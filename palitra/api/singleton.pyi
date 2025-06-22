@@ -1,6 +1,6 @@
 from collections.abc import Coroutine
 from typing import Any, TypeVar
-from .runner import EventLoopThreadRunner
+from ..core.runner import EventLoopThreadRunner
 
 T = TypeVar("T")
 

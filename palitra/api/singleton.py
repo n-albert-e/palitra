@@ -16,8 +16,8 @@ from collections.abc import Coroutine
 from threading import Lock
 from typing import Any, TypeVar
 
-from .runner import EventLoopThreadRunner
-from .logging import logger
+from ..core.runner import EventLoopThreadRunner
+from ..utils.logging import logger
 
 __all__ = (
     "gather",

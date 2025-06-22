@@ -1,9 +1,9 @@
 """A lightweight bridge for running async code from a sync context."""
 from __future__ import annotations
 
-from .exceptions import DeadlockError, PalitraError, RunnerError
-from .runner import EventLoopThreadRunner
-from .singleton import (
+from .utils.exceptions import DeadlockError, PalitraError, RunnerError
+from .core.runner import EventLoopThreadRunner
+from .api.singleton import (
     gather,
     is_runner_alive,
     run,

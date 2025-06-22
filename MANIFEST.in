@@ -1,0 +1,12 @@
+include LICENSE
+include README.md
+include CHANGELOG.md
+include pyproject.toml
+include main.py
+include quick_start.py
+include palitra_cli.py
+include *.md
+recursive-include palitra *.pyi
+recursive-include palitra *.md
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co] 

@@ -10,8 +10,8 @@ from concurrent.futures import Future, TimeoutError
 from threading import Event, Thread, get_ident
 from typing import Any, TypeVar
 
-from .exceptions import DeadlockError, RunnerError
-from .logging import logger
+from ..utils.exceptions import DeadlockError, RunnerError
+from ..utils.logging import logger
 
 # For a significant performance boost, users can install uvloop. This is an
 # optional dependency. `uvloop.install()` replaces the default asyncio event
