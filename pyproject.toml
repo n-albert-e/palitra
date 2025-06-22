@@ -46,3 +46,10 @@ dev = [
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore::DeprecationWarning:multiprocessing.popen_fork"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+loguru = "^0.7.2"
+
+[tool.poetry.extras]
+uvloop = ["uvloop>=0.17.0"]
