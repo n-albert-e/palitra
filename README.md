@@ -26,6 +26,7 @@ A lightweight bridge between **synchronous and asynchronous Python code**, maint
 | **Loop Isolation**     | ✅ Own thread & loop              | ❌ Global loop   | ❌ Shared loop      | ❌ Main thread only                 | ❌ Main thread                                                  | ❌ Main thread                                          | ❌ Main thread                                                |
 | **Best Use Case**      | Sync apps needing async reuse     | One-shot scripts | Notebooks, REPL     | Django views/middleware             | Simple CLI calls                                                | Testing, quick tools                                    | Simple utilities                                              |
 
+
 ---
 
 - **`palitra`**: Should be ideal for long-running synchronous apps (e.g. Flask, CLI, Celery) that need to reuse async state across multiple calls. Avoids monkey-patching and global loop interference by running a persistent background event loop thread.
@@ -35,8 +36,6 @@ A lightweight bridge between **synchronous and asynchronous Python code**, maint
 - **`xloem/async_to_sync`**: A lightweight wrapper that synchronously runs a coroutine using the current loop. No isolation, and reuses the main thread loop.
 - **`syncer`**: Simple `sync`/`async` wrappers using `run_until_complete`. Very easy but blocks the main thread and lacks isolation.
 - **`async-sync`**: Lightweight utility; wraps async-to-sync calls using `loop.run_until_complete()`. Limited concurrency, no threading support.
-
-
 ## 🔍 Comparison with `asgiref.sync.AsyncToSync`
 
 While `palitra` and `asgiref.sync.AsyncToSync` both enable running async code from sync code, they differ significantly in architecture and use cases:
@@ -83,7 +82,7 @@ Only use in production after careful evaluation in your environment.
 - ✅ Runs a persistent asyncio event loop in a background thread
 - ✅ Simple, thread-safe API for running coroutines from sync code
 - ✅ No monkey patching or global loop overrides
-- ✅ Automatic cleanup via `atexit`
+- ✅ Automatic cleanup via `atexit` and weakref to global runner (if used)
 - ✅ Lightweight: no external dependencies
 
 ---
