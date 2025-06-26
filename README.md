@@ -14,6 +14,7 @@ A lightweight bridge between **synchronous and asynchronous Python code**, maint
 
 ## 🔄 Comparison with Alternatives
 
+
 | Feature                | `palitra`                         | `asyncio.run()` | [`nest_asyncio`](https://github.com/erdewit/nest_asyncio) | [`asgiref.AsyncToSync`](https://github.com/django/asgiref) | [`xloem/async_to_sync`](https://github.com/xloem/async_to_sync) | [`miyakogi/syncer`](https://github.com/miyakogi/syncer) | [`Haskely/async-sync`](https://github.com/Haskely/async-sync) |
 | ---------------------- | --------------------------------- | --------------- | --------------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------- |
 | **Loop Persistence**   | ✅ Persistent (background thread) | ❌ Per call     | ✅ Patches                                                | ❌ Per call (sync <-> async switch)                        | ✅ Persistent (background thread)                               | ❌ Per call                                             | ❌ Per call                                                   |
