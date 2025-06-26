@@ -6,7 +6,7 @@ import asyncio
 import atexit
 import contextlib
 import threading
-from collections.abc import Coroutine
+from collections.abc import Awaitable, Callable, Coroutine
 from typing import Any, TypeVar
 
 T = TypeVar("T")
@@ -70,7 +70,14 @@ class EventLoopThreadRunner:
         """
         return self._loop
 
-    def run(self, coro: Coroutine[Any, Any, T], timeout: float | None = None) -> T:
+    def run(
+        self,
+        coro: Coroutine[Any, Any, T],
+        *,
+        timeout: float | None = None,
+        debug: bool | None = None,
+        loop_factory: Callable[[], asyncio.AbstractEventLoop] | None = None,
+    ) -> T:
         """Run a coroutine in the background event loop and wait for its result.
 
         Args:
@@ -86,6 +93,11 @@ class EventLoopThreadRunner:
             Exception: Any exception raised by the coroutine itself.
 
         """
+        if debug is not None and loop_factory is not None:
+            raise NotImplementedError(
+                "`debug` and `loop_factory` currently not implemented."
+            )
+
         if not asyncio.iscoroutine(coro):
             raise TypeError(f"Expected coroutine, got {type(coro).__name__}")
 
@@ -97,7 +109,7 @@ class EventLoopThreadRunner:
 
     def gather(
         self,
-        *coros: Coroutine[Any, Any, T],
+        *coros_or_futures: asyncio.Future[T] | Awaitable[T],
         return_exceptions: bool = False,
         timeout: float | None = None,
     ) -> list[T | BaseException]:
@@ -118,7 +130,9 @@ class EventLoopThreadRunner:
         """  # noqa: E501
 
         async def gatherer() -> list[T | BaseException]:
-            return await asyncio.gather(*coros, return_exceptions=return_exceptions)
+            return await asyncio.gather(
+                *coros_or_futures, return_exceptions=return_exceptions
+            )
 
         return self.run(gatherer(), timeout=timeout)
 

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import asyncio
 import weakref
-from collections.abc import Coroutine
+from collections.abc import Callable, Coroutine
 from threading import Lock
-from typing import Any, TypeVar
+from typing import Any, ParamSpec, TypeVar
 
 from .core import EventLoopThreadRunner
 
@@ -16,6 +17,7 @@ __all__ = (
 )
 
 T = TypeVar("T")
+P = ParamSpec("P")
 
 _runner_lock = Lock()
 _runner_ref: weakref.ReferenceType[EventLoopThreadRunner] | None = None
@@ -32,11 +34,17 @@ def _get_runner() -> EventLoopThreadRunner:
             runner = EventLoopThreadRunner()
             _runner_ref = weakref.ref(runner)
 
-            _finalizer = weakref.finalize(runner, runner.close)
+            _finalizer = weakref.finalize(runner, shutdown_global_runner)
         return runner
 
 
-def run[T](coro: Coroutine[Any, Any, T], timeout: float | None = None) -> T:
+def run(
+    coro: Coroutine[Any, Any, T],
+    *,
+    timeout: float | None = None,
+    debug: bool | None = None,
+    loop_factory: Callable[[], asyncio.AbstractEventLoop] | None = None,
+) -> T:
     """Run a coroutine in the global background event loop and wait for its result.
 
     Args:
@@ -52,10 +60,12 @@ def run[T](coro: Coroutine[Any, Any, T], timeout: float | None = None) -> T:
         Exception: Any exception raised by the coroutine itself.
 
     """
-    return _get_runner().run(coro, timeout)
+    return _get_runner().run(
+        coro, timeout=timeout, debug=debug, loop_factory=loop_factory
+    )
 
 
-def gather[T](
+def gather(
     *coros: Coroutine[Any, Any, T],
     return_exceptions: bool = False,
     timeout: float | None = None,
