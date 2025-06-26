@@ -2,17 +2,19 @@
 
 import asyncio
 from collections.abc import Coroutine, Generator
+from typing import Never
 
 import pytest
 
 from palitra import EventLoopThreadRunner
 
-# Try to import uvloop, but make it optional
+event_loop_policies = [asyncio.DefaultEventLoopPolicy]
 try:
-    import uvloop
-    UVLOOP_AVAILABLE = True
+    import uvloop  # type: ignore
+
+    event_loop_policies.append(uvloop.EventLoopPolicy)
 except ImportError:
-    UVLOOP_AVAILABLE = False
+    pass
 
 
 async def hello() -> str:
@@ -21,18 +23,16 @@ async def hello() -> str:
     return "hello"
 
 
-async def raises_exception() -> None:
+async def raises_exception() -> Never:
     """Async function that raises an exception for testing."""
     raise ValueError("test error")
 
 
-# Create event loop policies for testing
-event_loop_policies = [asyncio.DefaultEventLoopPolicy]
-if UVLOOP_AVAILABLE:
-    event_loop_policies.append(uvloop.EventLoopPolicy)
+async def long_running() -> None:
+    await asyncio.sleep(1)
 
 
-@pytest.fixture(params=event_loop_policies)
+@pytest.fixture(params=event_loop_policies, scope="function")
 def event_loop_runner(
     request: pytest.FixtureRequest,
 ) -> Generator[EventLoopThreadRunner, None, None]:
@@ -44,12 +44,16 @@ def event_loop_runner(
 
 
 @pytest.fixture
-def sample_coroutines() -> tuple:
+def sample_coroutine() -> Coroutine[None, None, str]:
     """Fixture providing sample coroutines for testing."""
-    return (hello(), hello(), hello())
+    return hello
+
+@pytest.fixture
+def exception_coroutine() -> Coroutine[None, None, Never]:
+    """Fixture providing a coroutine that raises an exception."""
+    return raises_exception
 
 
 @pytest.fixture
-def exception_coroutine() -> Coroutine[None, None, None]:
-    """Fixture providing a coroutine that raises an exception."""
-    return raises_exception() 
+def long_running_coroutine() -> Coroutine[None, None, None]:
+    return long_running

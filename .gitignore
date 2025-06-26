@@ -196,3 +196,6 @@ cython_debug/
 # uv files
 uv.lock
 .python-version
+
+#poetry lock
+poetry.lock
