@@ -4,16 +4,66 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "palitra"
-version = "0.0.1"
-description = "Run async functions seamlessly from sync code using a persistent background event loop."
+version = "0.1.0"
+description = "A lightweight bridge for running async code from sync context using a persistent background event loop."
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = []
+license = {text = "MIT"}
+requires-python = ">=3.8"
+keywords = ["async", "asyncio", "threading", "event-loop", "sync-to-async"]
+authors = [
+    {name = "Palitra Contributors", email = "contributors@palitra.dev"}
+]
+maintainers = [
+    {name = "Palitra Maintainers", email = "maintainers@palitra.dev"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Distributed Computing",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Database",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "loguru>=0.7.0",
+]
 
+[project.optional-dependencies]
+uvloop = ["uvloop>=0.17.0"]
+dev = [
+    "asgiref>=3.8.1",
+    "pytest>=8.4.1",
+    "pytest-asyncio>=1.0.0",
+    "uvloop>=0.21.0",
+    "psutil>=5.9.0",
+    "aiohttp>=3.8.0",
+    "asyncpg>=0.27.0",
+    "aiofiles>=23.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/MuratovER/palitra_ebanaia"
+Documentation = "https://github.com/MuratovER/palitra_ebanaia#readme"
+Repository = "https://github.com/MuratovER/palitra_ebanaia"
+Issues = "https://github.com/MuratovER/palitra_ebanaia/issues"
+Changelog = "https://github.com/MuratovER/palitra_ebanaia/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["LICENSE", "README.md", "palitra/__init__.py", "palitra/core.py"]
+include = ["LICENSE", "README.md", "palitra/**/*"]
+
+[tool.setuptools.package-data]
+palitra = ["*.pyi"]
 
 [tool.ruff.lint]
 select = [
@@ -35,13 +85,6 @@ select = [
     "A",
     # flake8-annotations: enforce type annotations
     "ANN",
-]
-[dependency-groups]
-dev = [
-    "asgiref>=3.8.1",
-    "pytest>=8.4.1",
-    "pytest-asyncio>=1.0.0",
-    "uvloop>=0.21.0",
 ]
 
 [tool.pytest.ini_options]
