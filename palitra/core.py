@@ -93,13 +93,11 @@ class EventLoopThreadRunner:
             Exception: Any exception raised by the coroutine itself.
 
         """
-        if debug is not None or loop_factory is not None:
-            raise NotImplementedError(
-                "`debug` and `loop_factory` currently not implemented."
-            )
+        if loop_factory is not None:
+            raise NotImplementedError("`loop_factory` currently not implemented.")
 
-        if not asyncio.iscoroutine(coro):
-            raise TypeError(f"Expected coroutine, got {type(coro).__name__}")
+        if debug is not None:
+            self.get_loop().set_debug(debug)
 
         async def wrapped() -> T:
             return await asyncio.wait_for(coro, timeout)

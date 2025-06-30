@@ -98,7 +98,9 @@ def test_close_idempotent(event_loop_runner: EventLoopThreadRunner) -> None:
 
 def test_run_with_non_coroutine(event_loop_runner: EventLoopThreadRunner) -> None:
     """Test that run raises TypeError for non-coroutines."""
-    with pytest.raises(TypeError, match="Expected coroutine"):
+    with pytest.raises(
+        TypeError, match="object str can't be used in 'await' expression"
+    ):
         event_loop_runner.run("not a coro")  # type: ignore
 
 
