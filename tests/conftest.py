@@ -48,6 +48,7 @@ def sample_coroutine() -> Coroutine[None, None, str]:
     """Fixture providing sample coroutines for testing."""
     return hello
 
+
 @pytest.fixture
 def exception_coroutine() -> Coroutine[None, None, Never]:
     """Fixture providing a coroutine that raises an exception."""

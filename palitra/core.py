@@ -93,7 +93,7 @@ class EventLoopThreadRunner:
             Exception: Any exception raised by the coroutine itself.
 
         """
-        if debug is not None and loop_factory is not None:
+        if debug is not None or loop_factory is not None:
             raise NotImplementedError(
                 "`debug` and `loop_factory` currently not implemented."
             )
