@@ -43,9 +43,9 @@ class EventLoopThreadRunner:
             daemon=True,
         )
         self._thread.start()
-        self._loop_created.wait()
         self._stack = contextlib.ExitStack()
         atexit.register(self.close)
+        self._loop_created.wait()
 
     def _run_loop(self) -> None:
         """Target function for the background thread.

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import weakref
-from collections.abc import Callable, Coroutine
+from collections.abc import Awaitable, Callable, Coroutine
 from threading import Lock
 from typing import Any, ParamSpec, TypeVar
 
@@ -66,7 +66,7 @@ def run(
 
 
 def gather(
-    *coros: Coroutine[Any, Any, T],
+    *coros_or_futures: asyncio.Future[T] | Awaitable[T],
     return_exceptions: bool = False,
     timeout: float | None = None,
 ) -> list[T | BaseException]:
@@ -86,7 +86,7 @@ def gather(
 
     """  # noqa: E501
     return _get_runner().gather(
-        *coros,
+        *coros_or_futures,
         return_exceptions=return_exceptions,
         timeout=timeout,
     )
