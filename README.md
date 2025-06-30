@@ -1,70 +1,17 @@
 # palitra
 
-_a.k.a. "palette"_ — reflects the library’s purpose: blending execution models (sync/async) like colors on an artist’s palette, enabling harmony between Python’s concurrency approaches.
+A lightweight bridge between **synchronous and asynchronous Python code**, maintaining a **persistent** event loop in a background thread. It allows you to call `async def` functions directly from regular (sync) code without blocking or complex event loop reentry.
 
-> **⚠️ Experimental Warning**: This library is experimental and not production-ready. Use at your own risk.
+Unlike `asyncio.run()`, which creates and tears down a new event loop on each call, using `palitra.run()` eliminates that overhead — preserving async state and resources (like aiohttp sessions or database connections) across multiple calls.
+
+> _a.k.a. "palette"_ — captures the essence of the library: blending differently colored (sync/async) functions like on an artist’s palette.
+
+> **⚠️ Known issues**: unexpected behaivour in 3.13t build.
+
+If something breaks in your environment, please report an issue — the whole purpose of this library is to spare developers from reinventing async/sync bridges in every project. Your feedback directly helps improve its reliability and real-world compatibility.
 
 > Inspired by [Running async code from sync in Python asyncio](https://death.andgravity.com/asyncio-bridge) by [lemon24](https://github.com/lemon24) and related discussions such as [Celery #9058](https://github.com/celery/celery/discussions/9058).
 
----
-
-A lightweight bridge between **synchronous and asynchronous Python code**, maintaining a persistent event loop in a background thread. It allows you to call `async def` functions directly from regular (sync) code without blocking or complex event loop reentry.
-
----
-
-## 🔄 Comparison with Alternatives
-
-| Feature                | `palitra`                         | `asyncio.run()` | [`nest_asyncio`](https://github.com/erdewit/nest_asyncio) | [`asgiref.AsyncToSync`](https://github.com/django/asgiref) | [`xloem/async_to_sync`](https://github.com/xloem/async_to_sync) | [`miyakogi/syncer`](https://github.com/miyakogi/syncer) | [`Haskely/async-sync`](https://github.com/Haskely/async-sync) |
-| ---------------------- | --------------------------------- | --------------- | --------------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------- |
-| **Loop Persistence**   | ✅ Persistent (background thread) | ❌ Per call     | ✅ Patches                                                | ✅❌ Per call (if no running event loop in main thread)                        | ✅ Persistent (background thread)                               | ❌ Per call                                             | ❌ Per call                                                   |
-| **Concurrency**        | ✅ Full                           | ❌ One-shot     | ✅                                                        | ✅❌ Per call (if no running event loop in main thread)                                                     | ✅                                                              | ❌ Single-thread blocking                               | ❌ Blocking                                                   |
-| **No Monkey Patching** | ✅ Yes                            | ✅ Yes          | ❌ Required                                               | ✅ Yes                                                     | ✅ Yes                                                          | ✅ Yes                                                  | ✅ Yes                                                        |
-
----
-
-- **`palitra`**: Should be ideal for long-running synchronous apps (e.g. Flask, CLI, Celery) that need to reuse async state across multiple calls. Avoids monkey-patching and global loop interference by running a persistent background event loop thread.
-- **`asyncio.run()`**: Best for short-lived scripts where a one-time coroutine needs to be run synchronously.
-- **`nest_asyncio`**: Patches the global event loop to allow nested async calls. Can work in Jupyter or limited contexts but is fragile for production.
-- **`asgiref.AsyncToSync`**: Meant firstly for Django/ASGI internals. Not for general async wrapping—uses a per-call scheduling model with strict thread management.
-- **`xloem/async_to_sync`**: A lightweight wrapper that synchronously runs a coroutine using loop in background thread.
-- **`syncer`**: Simple `sync`/`async` wrappers using `run_until_complete`.
-- **`async-sync`**: Lightweight utility; wraps async-to-sync calls using `loop.run_until_complete()`.
-
-## 🔍 Comparison with `asgiref.sync.AsyncToSync`
-
-While `palitra` and `asgiref.sync.AsyncToSync` both enable running async code from sync code, they differ significantly in architecture and use cases:
-
-### Key Differences
-
-| Aspect                       | `palitra`                                               | `asgiref.sync.AsyncToSync`                      |
-| ---------------------------- | ------------------------------------------------------- | ----------------------------------------------- |
-| **Event Loop**               | Persistent background loop (one per runner)             | Reuses loop if possible, else creates temporary |
-| **Execution Model**          | Dedicated thread runs the event loop                    | Coroutine scheduled into existing thread/loop   |
-| **Loop Lifetime**            | Explicitly managed or global singleton                  | Per-call if there is none in main thread (usually short-lived)                  |
-| **Thread Handling**          | Coroutines run in background thread, sync caller blocks | Complex dance to preserve thread affinity       |
-| **Performance (Multi-call)** | Efficient — no repeated loop creation                   | Overhead from loop setup/teardown               |
-| **State Preservation**       | Loop state preserved across sync calls                  | State lost unless explicitly preserved          |
-| **Shutdown Control**         | `shutdown_global_runner()` available                    | No manual lifecycle management                  |
-
-### Best Use Cases
-
-**Use `palitra` when:**
-
-- You need to call async code from sync repeatedly or over a long lifetime (e.g. Flask, CLI tools, Celery).
-- You want to maintain event loop state between calls (e.g. reuse aiohttp sessions, connection pools).
-- You want a lightweight, self-contained solution with explicit lifecycle control.
-
-**Use `asgiref.sync.AsyncToSync` when:**
-
-- You’re building on top of Django/ASGI and already using `asgiref`.
-- You need compatibility with Django’s sync/async internals (e.g. views, middleware, ORM).
-- Thread affinity is critical (e.g. thread-sensitive DB connections in Django).
-
----
-
-Only use in production after careful evaluation in your environment.
-
----
 
 ## Features
 
@@ -74,9 +21,15 @@ Only use in production after careful evaluation in your environment.
 - ✅ Automatic cleanup via `atexit` and weakref to global runner (if used)
 - ✅ Lightweight: no external dependencies
 
----
+
+## [Documentation](https://github.com/abebus/palitra/tree/main/docs)
+
+[Why this even exists?](https://github.com/abebus/palitra/tree/main/docs/faq.md)
 
 ## Usage Examples
+
+This is not ideal, but in real-world scenarios, migrating to ASGI isn’t always possible.
+When stuck with WSGI, palitra lets you still use async features to get things working.
 
 ### Flask with aiohttp
 
@@ -95,7 +48,6 @@ async def fetch_url(session, url):
 @app.route('/api/comments')
 def get_comments():
     async def fetch_all():
-        # this is not ideal, but in real world sometimes it's okay just to make thing work
         async with aiohttp.ClientSession() as session:
             urls = [
                 'https://jsonplaceholder.typicode.com/comments/1',
@@ -132,114 +84,6 @@ def sync_celery_wrapper(data: str):
     return palitra.run(async_processing(data))
 ```
 
----
-
-## API Reference
-
-### 🔹 High-Level API (Global Runner)
-
-These top-level functions create and reuse a **singleton** `EventLoopThreadRunner` under the hood.
-
----
-
-### `run(coro: Coroutine, timeout: float | None = None) -> Any`
-
-Run a coroutine from synchronous code.
-
-- Creates a shared event loop thread on first use.
-- Internally calls `EventLoopThreadRunner.run(...)`.
-
-```python
-from palitra import run
-
-result = run(my_async_func())
-```
-
----
-
-### `gather(*coros: Coroutine, return_exceptions: bool = False, timeout: float | None = None) -> list[Any]`
-
-Run multiple coroutines concurrently from sync code.
-
-- Like `asyncio.gather(...)`, but callable from sync.
-- Uses the global shared runner.
-
-```python
-from palitra import gather
-
-results = gather(coro1(), coro2(), coro3())
-```
-
----
-
-### `is_runner_alive() -> bool`
-
-Check whether the global event loop runner currently exists and is alive.
-
----
-
-### `shutdown_global_runner() -> None`
-
-Explicitly shut down the global event loop runner and release resources.
-
-- After calling this, subsequent calls to `run` or `gather` will create a new runner instance.
-- Useful for cleanup or to reset the runner state.
-
----
-
-### 🔸 `EventLoopThreadRunner` Methods
-
-Use the class directly if you need more control or isolation (e.g., separate event loop threads).
-
----
-
-### `run(self, coro: Coroutine, timeout: float | None = None) -> Any`
-
-Run a coroutine on this runner’s background loop.
-
-- **Returns**: The coroutine result
-- **Raises**:
-
-  - `TypeError` if input is not a coroutine
-  - `asyncio.TimeoutError` if timeout expires
-  - Exceptions from the coroutine itself
-
----
-
-### `gather(self, *coros: Coroutine, return_exceptions: bool = False, timeout: float | None = None) -> list[Any]`
-
-Run multiple coroutines concurrently via this runner.
-
-- Returns list of results or exceptions (if `return_exceptions=True`).
-- Raises exceptions same as `run`.
-
----
-
-### `get_loop(self) -> asyncio.AbstractEventLoop`
-
-Get the event loop managed by this runner.
-
-Useful if you want to schedule coroutines directly.
-
----
-
-### `close(self) -> None`
-
-Stop the event loop and background thread.
-
-- Idempotent — safe to call multiple times.
-- Cleans up resources and stops the thread.
-
----
-
-## How It Works
-
-1. Starts a background thread that runs an `asyncio` event loop.
-2. Internally uses `asyncio.run_coroutine_threadsafe(...)` for thread-safe execution.
-3. Ensures cleanup via `atexit` and context manager support.
-4. If used via high-level api (`run`, `gather`), global runner object created using weakref.
-
----
 
 ## Contributing
 

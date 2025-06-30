@@ -1,24 +1,63 @@
-[build-system]
-requires = ["setuptools>=65.5.1", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "palitra"
 version = "0.0.1"
 description = "Run async functions seamlessly from sync code using a persistent background event loop."
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = []
+requires-python = ">=3.9"
+license = { text = "BSD-3-Clause" }
+authors = [{ name = "Albert Namaev", email = "anamaev263@gmail.com" }]
+maintainers = [{ name = "Albert Namaev", email = "anamaev263@gmail.com" }]
+keywords = ["asyncio", "async", "event loop", "concurrency"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Operating System",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+    "Framework :: AsyncIO",
+    "Operating System :: POSIX",
+    "Operating System :: Microsoft :: Windows",
+]
+dependencies = ["typing_extensions>=4.0.0; python_version < '3.10'"]
 
+[project.urls]
+Homepage = "https://github.com/abebus/palitra"
+Repository = "https://github.com/abebus/palitra"
+Documentation = "https://github.com/abebus/palitra/tree/main/docs"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.16.1",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "uvloop>=0.21.0; sys_platform != 'win32'",
+]
+
+[build-system]
+requires = ["setuptools>=65.5.1", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["LICENSE", "README.md", "palitra/__init__.py", "palitra/core.py"]
+include = ["palitra*"]
+exclude = ["tests*", "docs*"]
 
 [tool.ruff.lint]
 select = [
     # pycodestyle errors and warnings
     "E",
+    "W",
     # Pyflakes error checks (unused imports, undefined names, etc.)
     "F",
     # pyupgrade: automatic syntax upgrades for modern Python
@@ -35,15 +74,16 @@ select = [
     "A",
     # flake8-annotations: enforce type annotations
     "ANN",
+    # Perflint: performance-related checks
+    "PERF",
+    # ruff-specific checks
+    "RUF",
 ]
-[dependency-groups]
-dev = [
-    "asgiref>=3.8.1",
-    "pytest>=8.4.1",
-    "pytest-asyncio>=1.0.0",
-    "pytest-cov>=6.2.1",
-    "uvloop>=0.21.0; sys_platform != 'win32'",
-]
+
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore::DeprecationWarning:multiprocessing.popen_fork"]
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true

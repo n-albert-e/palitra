@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import atexit
-import contextlib
 import threading
 from collections.abc import Awaitable, Callable, Coroutine
 from typing import Any, TypeVar
@@ -31,10 +30,14 @@ class EventLoopThreadRunner:
 
     """  # noqa: E501
 
+    __slots__ = ("__weakref__", "_loop", "_loop_created", "_thread")
+
     def __init__(self) -> None:
         """The thread starts immediately, and the loop runs forever until closed.
         Registers atexit handler to close the loop on interpreter shutdown.
         """
+        atexit.register(self.close)
+
         self._loop = asyncio.new_event_loop()
         self._loop_created = threading.Event()
         self._thread = threading.Thread(
@@ -44,8 +47,6 @@ class EventLoopThreadRunner:
         )
         self._thread.start()
         self._loop_created.wait()
-        self._stack = contextlib.ExitStack()
-        atexit.register(self.close)
 
     def _run_loop(self) -> None:
         """Target function for the background thread.
@@ -93,13 +94,11 @@ class EventLoopThreadRunner:
             Exception: Any exception raised by the coroutine itself.
 
         """
-        if debug is not None and loop_factory is not None:
-            raise NotImplementedError(
-                "`debug` and `loop_factory` currently not implemented."
-            )
+        if loop_factory is not None:
+            raise NotImplementedError("`loop_factory` currently not implemented.")
 
-        if not asyncio.iscoroutine(coro):
-            raise TypeError(f"Expected coroutine, got {type(coro).__name__}")
+        if debug is not None:
+            self.get_loop().set_debug(debug)
 
         async def wrapped() -> T:
             return await asyncio.wait_for(coro, timeout)
@@ -143,11 +142,8 @@ class EventLoopThreadRunner:
 
         Cleans up resources registered in the internal context stack.
         """
-        try:
-            loop = self.get_loop()
-            if loop.is_closed():
-                return
-            loop.call_soon_threadsafe(loop.stop)
-            self._thread.join()
-        finally:
-            self._stack.close()
+        loop = self.get_loop()
+        if loop.is_closed():
+            return
+        loop.call_soon_threadsafe(loop.stop)
+        self._thread.join()

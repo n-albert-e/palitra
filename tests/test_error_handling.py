@@ -2,21 +2,26 @@
 
 import asyncio
 import contextlib
+import sys
 import threading
-from collections.abc import Awaitable, Callable
-from typing import Any, ParamSpec, TypeVar
+from collections.abc import Callable, Coroutine
+from typing import Any, NoReturn, TypeVar
 
 import pytest
 
 from palitra import EventLoopThreadRunner, gather, run
 
+if sys.version_info < (3, 10):
+    from typing_extensions import ParamSpec
+else:
+    from typing import ParamSpec
 T = TypeVar("T")
 P = ParamSpec("P")
 
 
 def test_timeout_handling(
     event_loop_runner: EventLoopThreadRunner,
-    long_running_coroutine: Callable[P, Awaitable[T]],
+    long_running_coroutine: Callable[[], Coroutine[None, None, str]],
 ) -> None:
     """Test timeout error handling."""
     with pytest.raises(asyncio.TimeoutError):
@@ -25,8 +30,8 @@ def test_timeout_handling(
 
 def test_gather_with_exceptions_returned(
     event_loop_runner: EventLoopThreadRunner,
-    exception_coroutine: Callable[P, Awaitable[T]],
-    sample_coroutine: Callable[P, Awaitable[T]],
+    exception_coroutine: Callable[[], Coroutine[None, None, NoReturn]],
+    sample_coroutine: Callable[[], Coroutine[None, None, str]],
 ) -> None:
     """Test gather with return_exceptions=True."""
 
@@ -44,8 +49,8 @@ def test_gather_with_exceptions_returned(
 
 def test_gather_with_exceptions_raised(
     event_loop_runner: EventLoopThreadRunner,
-    exception_coroutine: Callable[P, Awaitable[T]],
-    sample_coroutine: Callable[P, Awaitable[T]],
+    exception_coroutine: Callable[[], Coroutine[None, None, NoReturn]],
+    sample_coroutine: Callable[[], Coroutine[None, None, str]],
 ) -> None:
     """Test gather with return_exceptions=False (default)."""
 
@@ -59,13 +64,34 @@ def test_gather_with_exceptions_raised(
 
 def test_invalid_coroutine_type(event_loop_runner: EventLoopThreadRunner) -> None:
     """Test handling of invalid coroutine types."""
-    with pytest.raises(TypeError, match="Expected coroutine"):
+    with pytest.raises(
+        TypeError,
+        match=(
+            r"(object str can't be used in 'await' expression)"
+            r"|"
+            r"('str' object can't be awaited)"
+        ),
+    ):
         event_loop_runner.run("not a coroutine")  # type: ignore
 
-    with pytest.raises(TypeError, match="Expected coroutine"):
+    with pytest.raises(
+        TypeError,
+        match=(
+            r"(object int can't be used in 'await' expression)"
+            r"|"
+            r"('int' object can't be awaited)"
+        ),
+    ):
         event_loop_runner.run(42)  # type: ignore
 
-    with pytest.raises(TypeError, match="Expected coroutine"):
+    with pytest.raises(
+        TypeError,
+        match=(
+            r"(object NoneType can't be used in 'await' expression)"
+            r"|"
+            r"('NoneType' object can't be awaited)"
+        ),
+    ):
         event_loop_runner.run(None)  # type: ignore
 
 
@@ -122,7 +148,7 @@ def test_cancellation_handling(event_loop_runner: EventLoopThreadRunner) -> None
 
 def test_thread_safety_under_error_conditions(
     event_loop_runner: EventLoopThreadRunner,
-    exception_coroutine: Callable[P, Awaitable[T]],
+    exception_coroutine: Callable[[], Coroutine[None, None, NoReturn]],
 ) -> None:
     """Test thread safety when errors occur."""
     results: list[Any] = []
@@ -130,13 +156,13 @@ def test_thread_safety_under_error_conditions(
 
     def worker_thread() -> None:
         try:
-            result = event_loop_runner.run(exception_coroutine())
+            result: NoReturn = event_loop_runner.run(exception_coroutine())
             results.append(result)
         except Exception as e:
             errors.append(e)
 
     # Start multiple threads that will encounter errors
-    threads = []
+    threads: list[threading.Thread] = []
     for _ in range(3):
         thread = threading.Thread(target=worker_thread)
         threads.append(thread)
@@ -154,7 +180,7 @@ def test_thread_safety_under_error_conditions(
 
 
 def test_global_functions_error_handling(
-    exception_coroutine: Callable[P, Awaitable[T]],
+    exception_coroutine: Callable[[], Coroutine[None, None, NoReturn]],
 ) -> None:
     """Test error handling in global functions."""
 
@@ -207,7 +233,7 @@ def test_mixed_success_and_failure_in_gather(
 
 def test_resource_cleanup_after_errors(
     event_loop_runner: EventLoopThreadRunner,
-    exception_coroutine: Callable[P, Awaitable[T]],
+    exception_coroutine: Callable[[], Coroutine[None, None, NoReturn]],
 ) -> None:
     """Test that resources are properly cleaned up after errors."""
     loop = event_loop_runner.get_loop()
@@ -224,18 +250,10 @@ def test_resource_cleanup_after_errors(
     assert final_tasks <= initial_tasks + 1
 
 
-def test_run_with_non_coroutine_type(event_loop_runner: EventLoopThreadRunner) -> None:
-    """Test run with non-coroutine types raises TypeError."""
-    with pytest.raises(TypeError, match="Expected coroutine, got int"):
-        event_loop_runner.run(123)  # type: ignore
-    with pytest.raises(TypeError, match="Expected coroutine, got object"):
-        event_loop_runner.run(object())  # type: ignore
-
-
 def test_gather_with_none(event_loop_runner: EventLoopThreadRunner) -> None:
     """Test gather with None raises TypeError."""
     with pytest.raises(
-        TypeError, match="An asyncio.Future, a coroutine or an awaitable is required"
+        TypeError, match=r"An asyncio.Future, a coroutine or an awaitable is required"
     ):
         event_loop_runner.gather(None)  # type: ignore
 
@@ -244,6 +262,7 @@ def test_gather_with_many_coroutines(event_loop_runner: EventLoopThreadRunner) -
     """Test gather with a large number of coroutines."""
 
     async def hello() -> int:
+        await asyncio.sleep(0)
         return 1
 
     results = event_loop_runner.gather(*[hello() for _ in range(500)])
