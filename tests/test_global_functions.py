@@ -2,14 +2,20 @@
 
 import asyncio
 import gc
+import sys
 import threading
 from collections.abc import Awaitable, Callable
 from multiprocessing import Process
-from typing import ParamSpec, TypeVar
+from typing import TypeVar, Union
 
 import pytest
 
 from palitra import gather, is_runner_alive, run, shutdown_global_runner
+
+if sys.version_info < (3, 10):
+    from typing_extensions import ParamSpec
+else:
+    from typing import ParamSpec
 
 T = TypeVar("T")
 P = ParamSpec("P")
@@ -27,7 +33,9 @@ def test_high_level_gather(sample_coroutine: Callable[P, Awaitable[T]]) -> None:
     assert all(r == "hello" for r in results)
 
 
-def test_global_runner_lifecycle(sample_coroutine: Callable[P, Awaitable[T]]) -> None:
+def test_global_runner_lifecycle(
+    sample_coroutine: Callable[P, Awaitable[T]],
+) -> None:
     """Test global runner lifecycle management."""
     shutdown_global_runner()
     assert not is_runner_alive()
@@ -121,7 +129,7 @@ def test_multiple_gc_collect_during_execution() -> None:
 def test_gc_collect_with_exception_handling() -> None:
     """Test gc.collect() behavior when exceptions occur."""
 
-    async def failing_task() -> str | None:
+    async def failing_task() -> Union[str, None]:
         try:
             await asyncio.sleep(0.01)
             gc.collect()
@@ -244,7 +252,9 @@ def test_gather_with_large_number_of_coroutines() -> None:
     assert results == [1] * 100
 
 
-def test_gather_with_nested_gather(sample_coroutine: Callable[P, Awaitable[T]]) -> None:
+def test_gather_with_nested_gather(
+    sample_coroutine: Callable[P, Awaitable[T]],
+) -> None:
     """Test gather with nested gather calls."""
 
     async def nested() -> tuple[str, ...]:

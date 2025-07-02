@@ -1,14 +1,16 @@
-"""Common test fixtures and configuration for palitra tests."""
+from __future__ import annotations
 
 import asyncio
-from collections.abc import Coroutine, Generator
-from typing import Never
+from collections.abc import Callable, Coroutine, Generator
+from typing import NoReturn
 
 import pytest
 
 from palitra import EventLoopThreadRunner
 
-event_loop_policies = [asyncio.DefaultEventLoopPolicy]
+event_loop_policies: list[type[asyncio.AbstractEventLoopPolicy]] = [
+    asyncio.DefaultEventLoopPolicy
+]
 try:
     import uvloop  # type: ignore
 
@@ -23,7 +25,7 @@ async def hello() -> str:
     return "hello"
 
 
-async def raises_exception() -> Never:
+async def raises_exception() -> NoReturn:
     """Async function that raises an exception for testing."""
     raise ValueError("test error")
 
@@ -44,17 +46,17 @@ def event_loop_runner(
 
 
 @pytest.fixture
-def sample_coroutine() -> Coroutine[None, None, str]:
+def sample_coroutine() -> Callable[[], Coroutine[None, None, str]]:
     """Fixture providing sample coroutines for testing."""
     return hello
 
 
 @pytest.fixture
-def exception_coroutine() -> Coroutine[None, None, Never]:
+def exception_coroutine() -> Callable[[], Coroutine[None, None, NoReturn]]:
     """Fixture providing a coroutine that raises an exception."""
     return raises_exception
 
 
 @pytest.fixture
-def long_running_coroutine() -> Coroutine[None, None, None]:
+def long_running_coroutine() -> Callable[[], Coroutine[None, None, None]]:
     return long_running
