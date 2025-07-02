@@ -65,17 +65,17 @@ def test_gather_with_exceptions_raised(
 def test_invalid_coroutine_type(event_loop_runner: EventLoopThreadRunner) -> None:
     """Test handling of invalid coroutine types."""
     with pytest.raises(
-        TypeError, match="object str can't be used in 'await' expression"
+        TypeError, match=r"(object str can't be used in 'await' expression)|('str' object can't be awaited)"
     ):
         event_loop_runner.run("not a coroutine")  # type: ignore
 
     with pytest.raises(
-        TypeError, match="object int can't be used in 'await' expression"
+        TypeError, match=r"(object int can't be used in 'await' expression)|('int' object can't be awaited)"
     ):
         event_loop_runner.run(42)  # type: ignore
 
     with pytest.raises(
-        TypeError, match="object NoneType can't be used in 'await' expression"
+        TypeError, match=r"(object NoneType can't be used in 'await' expression)|('NoneType' object can't be awaited)"
     ):
         event_loop_runner.run(None)  # type: ignore
 
@@ -238,11 +238,11 @@ def test_resource_cleanup_after_errors(
 def test_run_with_non_coroutine_type(event_loop_runner: EventLoopThreadRunner) -> None:
     """Test run with non-coroutine types raises TypeError."""
     with pytest.raises(
-        TypeError, match="object int can't be used in 'await' expression"
+        TypeError, match=r"(object int can't be used in 'await' expression)|('int' object can't be awaited)"
     ):
         event_loop_runner.run(123)  # type: ignore
     with pytest.raises(
-        TypeError, match="object object can't be used in 'await' expression"
+        TypeError, match=r"(object object can't be used in 'await' expression)|('object' object can't be awaited)"
     ):
         event_loop_runner.run(object())  # type: ignore
 
