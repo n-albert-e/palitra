@@ -12,9 +12,17 @@ dependencies = [
     "typing_extensions>=4.0.0; python_version < '3.10'"
 ]
 
+[dependency-groups]
+dev = [
+    "mypy>=1.16.1",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "uvloop>=0.21.0; sys_platform != 'win32'",
+]
+
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["LICENSE", "README.md", "palitra/__init__.py", "palitra/core.py"]
+include = ["LICENSE", "README.md", "palitra/__init__.py", "palitra/_core.py"]
 
 [tool.ruff.lint]
 select = [
@@ -36,15 +44,13 @@ select = [
     "A",
     # flake8-annotations: enforce type annotations
     "ANN",
+    "PERF",
 ]
-[dependency-groups]
-dev = [
-    "asgiref>=3.8.1",
-    "pytest>=8.4.1",
-    "pytest-asyncio>=1.0.0",
-    "pytest-cov>=6.2.1",
-    "uvloop>=0.21.0; sys_platform != 'win32'",
-]
+
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore::DeprecationWarning:multiprocessing.popen_fork"]
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true

@@ -1,4 +1,4 @@
-from palitra.core import EventLoopThreadRunner
+from palitra import EventLoopThreadRunner
 
 
 def test_non_debug(event_loop_runner: EventLoopThreadRunner) -> None:
