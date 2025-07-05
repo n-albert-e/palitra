@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import atexit
-import contextlib
 import threading
 from collections.abc import Awaitable, Callable, Coroutine
 from typing import Any, TypeVar
@@ -31,10 +30,14 @@ class EventLoopThreadRunner:
 
     """  # noqa: E501
 
+    __slots__ = ("_loop", "_loop_created", "_thread", "__weakref__")
+
     def __init__(self) -> None:
         """The thread starts immediately, and the loop runs forever until closed.
         Registers atexit handler to close the loop on interpreter shutdown.
         """
+        atexit.register(self.close)
+
         self._loop = asyncio.new_event_loop()
         self._loop_created = threading.Event()
         self._thread = threading.Thread(
@@ -43,8 +46,6 @@ class EventLoopThreadRunner:
             daemon=True,
         )
         self._thread.start()
-        self._stack = contextlib.ExitStack()
-        atexit.register(self.close)
         self._loop_created.wait()
 
     def _run_loop(self) -> None:
@@ -141,11 +142,8 @@ class EventLoopThreadRunner:
 
         Cleans up resources registered in the internal context stack.
         """
-        try:
-            loop = self.get_loop()
-            if loop.is_closed():
-                return
-            loop.call_soon_threadsafe(loop.stop)
-            self._thread.join()
-        finally:
-            self._stack.close()
+        loop = self.get_loop()
+        if loop.is_closed():
+            return
+        loop.call_soon_threadsafe(loop.stop)
+        self._thread.join()
