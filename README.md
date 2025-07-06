@@ -6,7 +6,7 @@ Unlike `asyncio.run()`, which creates and tears down a new event loop on each ca
 
 > _a.k.a. "palette"_ — captures the essence of the library: blending differently colored (sync/async) functions like on an artist’s palette.
 
-> **⚠️ Experimental Warning**: This library is experimental and not production-ready. Use at your own risk. 
+> **⚠️ Known issues**: unexpected behaivour in windows 3.13t build.
 
 If something breaks in your environment, please report an issue — the whole purpose of this library is to spare developers from reinventing async/sync bridges in every project. Your feedback directly helps improve its reliability and real-world compatibility.
 
