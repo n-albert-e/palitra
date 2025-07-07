@@ -87,6 +87,7 @@ def test_gather_large_data(event_loop_runner: EventLoopThreadRunner) -> None:
     """Test gather with coroutines returning large data."""
 
     async def big() -> list[int]:
+        await asyncio.sleep(0)
         return list(range(10000))
 
     results = event_loop_runner.gather(big(), big(), return_exceptions=False)

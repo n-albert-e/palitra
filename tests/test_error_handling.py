@@ -253,7 +253,7 @@ def test_resource_cleanup_after_errors(
 def test_gather_with_none(event_loop_runner: EventLoopThreadRunner) -> None:
     """Test gather with None raises TypeError."""
     with pytest.raises(
-        TypeError, match="An asyncio.Future, a coroutine or an awaitable is required"
+        TypeError, match=r"An asyncio.Future, a coroutine or an awaitable is required"
     ):
         event_loop_runner.gather(None)  # type: ignore
 
@@ -262,6 +262,7 @@ def test_gather_with_many_coroutines(event_loop_runner: EventLoopThreadRunner) -
     """Test gather with a large number of coroutines."""
 
     async def hello() -> int:
+        await asyncio.sleep(0)
         return 1
 
     results = event_loop_runner.gather(*[hello() for _ in range(500)])

@@ -30,7 +30,7 @@ class EventLoopThreadRunner:
 
     """  # noqa: E501
 
-    __slots__ = ("_loop", "_loop_created", "_thread", "__weakref__")
+    __slots__ = ("__weakref__", "_loop", "_loop_created", "_thread")
 
     def __init__(self) -> None:
         """The thread starts immediately, and the loop runs forever until closed.

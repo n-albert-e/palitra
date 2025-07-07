@@ -21,12 +21,13 @@ except ImportError:
 
 async def hello() -> str:
     """Simple async function for testing."""
-    await asyncio.sleep(0.01)
+    await asyncio.sleep(0)
     return "hello"
 
 
 async def raises_exception() -> NoReturn:
     """Async function that raises an exception for testing."""
+    await asyncio.sleep(0)
     raise ValueError("test error")
 
 

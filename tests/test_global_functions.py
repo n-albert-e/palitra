@@ -172,7 +172,7 @@ def test_gc_collect_with_complex_object_graph() -> None:
 
     class Node:
         def __init__(self) -> None:
-            self.ref: Union[None, Node] = None
+            self.ref: Union[Node, None] = None
 
     async def task() -> bool:
         # Create circular reference
