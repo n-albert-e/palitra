@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -25,5 +25,37 @@ jobs:
         run: uv tool install tox --with tox-uv
         env:
           UV_SYSTEM_PYTHON: 1
+
       - name: Run tests with tox-uv
-        run:  uv run --no-dev tox -e ${{ matrix.python-version }}
+        run: uv run --no-dev tox -e ${{ matrix.python-version }}
+
+      - name: Build wheel and sdist
+        run: uv build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.os }}-${{ matrix.python-version }}
+          path: dist/*
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/download-artifact@vv4.3.0
+        with:
+          path: dist/
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6.3.1
+      - name: Publish all wheels to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1.12
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          packages-dir: dist/
+          repository-url: https://test.pypi.org/legacy/
+      # - name: Publish all wheels to PyPI
+      #   uses: pypa/gh-action-pypi-publish@release/v1
+      #   with:
+      #     password: ${{ secrets.PYPI_API_TOKEN }}
+      #     packages-dir: dist/
