@@ -196,7 +196,6 @@ def child_process() -> None:
 
     runner = EventLoopThreadRunner()
     loop = runner.get_loop()
-    loop.run_forever()
     print("loop running:", loop.is_running())
 
 
