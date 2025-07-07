@@ -51,17 +51,8 @@ jobs:
       - uses: actions/download-artifact@v4.3.0
         with:
           path: dist/
-      - name: Move all wheels and sdists to dist/
-        run: |
-          shopt -s globstar nullglob
-          mv dist/**/**/*.whl dist/ 2>/dev/null || true
-          mv dist/**/**/*.tar.gz dist/ 2>/dev/null || true
-          find dist/ -mindepth 2 -type d -exec rm -rf {} +
       - name: Install uv
         uses: astral-sh/setup-uv@v6.3.1
-      - name: Publish all wheels to Test PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1.12
-        with:
-          repository-url: https://test.pypi.org/legacy/
+        run: uv publish --index test
       # - name: Publish all wheels to PyPI
       #   uses: pypa/gh-action-pypi-publish@release/v1
