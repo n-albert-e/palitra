@@ -196,6 +196,7 @@ def child_process() -> None:
 
     runner = EventLoopThreadRunner()
     loop = runner.get_loop()
+    loop.run_forever()
     print("loop running:", loop.is_running())
 
 
@@ -212,6 +213,7 @@ def test_runner_atexit_behavior(capfd: pytest.CaptureFixture[str]) -> None:
     out, err = capfd.readouterr()
     assert "RuntimeError" not in err
     assert "loop running: True" in out
+    p.kill()
 
 
 def test_run_after_shutdown_creates_new_runner(
