@@ -192,3 +192,10 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# uv files
+uv.lock
+.python-version
+
+#poetry lock
+poetry.lock
