@@ -1,6 +1,6 @@
 [project]
 name = "palitra"
-version = "0.0.1-0003"
+version = "0.0.1-0004"
 description = "Run async functions seamlessly from sync code using a persistent background event loop."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -56,11 +56,8 @@ explicit = true
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = [
-    "palitra/__init__.py",
-    "palitra/_core.py",
-    "palitra/_global.py",
-]
+include = ["palitra*"]
+exclude = ["tests*", "docs*"]
 
 [tool.ruff.lint]
 select = [
