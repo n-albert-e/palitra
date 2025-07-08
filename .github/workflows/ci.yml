@@ -13,7 +13,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os:
+          [
+            ubuntu-latest,
+            ubuntu-24.04-arm,
+            windows-latest,
+            windows-arm,
+            macos-13,
+            macos-latest,
+          ]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.13t", "3.14"]
     steps:
       - uses: actions/checkout@v4
@@ -30,28 +38,19 @@ jobs:
       - name: Run tests with tox-uv
         run: uv run --no-dev tox -e ${{ matrix.python-version }}
 
-      - name: Build wheel
-        run: uv build --wheel
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ci-wheels-${{ matrix.os }}-${{ matrix.python-version }}
-          path: dist/*.whl
-
-  build_sdist:
+  build:
     name: Build source distribution
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build sdist
-        run: pipx run build --sdist
+      - name: Build sdist and wheel
+        run: pipx run build
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ci-sdist
-          path: dist/*.tar.gz
+          name: ci-dist
+          path: dist/*
 
   publish:
     runs-on: ubuntu-latest
@@ -59,7 +58,7 @@ jobs:
     permissions:
       # IMPORTANT: this permission is mandatory for Trusted Publishing
       id-token: write
-    needs: [test, build_sdist]
+    needs: [test, build]
     # if: github.event_name == 'release' && github.event.action == 'published'
     steps:
       - uses: actions/checkout@v4
