@@ -1,0 +1,6 @@
+exclude tests
+exclude tests/*
+exclude tests/**/*
+exclude docs
+exclude docs/*
+exclude docs/**/*
