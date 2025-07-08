@@ -2,10 +2,10 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, release]
     tags: ["*"]
   pull_request:
-    branches: [main]
+    branches: [main, release]
   workflow_dispatch:
 
 jobs:
@@ -58,7 +58,7 @@ jobs:
       # IMPORTANT: this permission is mandatory for Trusted Publishing
       id-token: write
     needs: [test, build]
-    # if: github.event_name == 'release' && github.event.action == 'published'
+    if: github.event_name == 'release' && github.event.action == 'published'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -66,9 +66,9 @@ jobs:
           pattern: ci-*
           path: dist
           merge-multiple: true
-      - name: Publish wheels to test PyPI
+      - name: Publish to test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
-      # - name: Publish all wheels to PyPI
-      #   uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
