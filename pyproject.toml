@@ -1,6 +1,6 @@
 [project]
 name = "palitra"
-version = "0.0.1"
+version = "0.0.1-0001"
 description = "Run async functions seamlessly from sync code using a persistent background event loop."
 readme = "README.md"
 requires-python = ">=3.9"
