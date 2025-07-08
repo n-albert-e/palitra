@@ -18,7 +18,6 @@ jobs:
             ubuntu-latest,
             ubuntu-24.04-arm,
             windows-latest,
-            windows-arm,
             macos-13,
             macos-latest,
           ]
