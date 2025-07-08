@@ -22,14 +22,14 @@ If something breaks in your environment, please report an issue — the whole pu
 - ✅ Lightweight: no external dependencies
 
 
-## [Documentation](/docs/)
+## [Documentation](https://github.com/abebus/palitra/tree/main/docs)
 
-[Why this even exists?](/docs/faq.md)
+[Why this even exists?](https://github.com/abebus/palitra/tree/main/docs/faq.md)
 
 ## Usage Examples
 
 This is not ideal, but in real-world scenarios, migrating to ASGI isn’t always possible.
-When stuck with WSGI, palitra lets you still use async features like aiohttp to get things working.
+When stuck with WSGI, palitra lets you still use async features to get things working.
 
 ### Flask with aiohttp
 
