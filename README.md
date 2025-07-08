@@ -6,12 +6,19 @@ Unlike `asyncio.run()`, which creates and tears down a new event loop on each ca
 
 > _a.k.a. "palette"_ — captures the essence of the library: blending differently colored (sync/async) functions like on an artist’s palette.
 
-> **⚠️ Known issues**: unexpected behaivour in 3.13t build.
+> **⚠️ Known issues:** Unexpected behaviour in 3.13t build.
 
-If something breaks in your environment, please report an issue — the whole purpose of this library is to spare developers from reinventing async/sync bridges in every project. Your feedback directly helps improve its reliability and real-world compatibility.
+If something breaks in your environment, please report an issue—the whole purpose of this library is to spare developers from reinventing async/sync bridges in every project. Your feedback directly helps improve its reliability and real-world compatibility.
 
 > Inspired by [Running async code from sync in Python asyncio](https://death.andgravity.com/asyncio-bridge) by [lemon24](https://github.com/lemon24) and related discussions such as [Celery #9058](https://github.com/celery/celery/discussions/9058).
 
+## Installation
+
+You can install **palitra** from [PyPI](https://pypi.org/project/palitra/) with pip or any other Python package manager (uv, poetry, etc):
+
+```sh
+pip install palitra
+```
 
 ## Features
 
@@ -24,7 +31,7 @@ If something breaks in your environment, please report an issue — the whole pu
 
 ## [Documentation](https://github.com/abebus/palitra/tree/main/docs)
 
-[Why this even exists?](https://github.com/abebus/palitra/tree/main/docs/faq.md)
+[Why does this even exist?](https://github.com/abebus/palitra/tree/main/docs/faq.md)
 
 ## Usage Examples
 
