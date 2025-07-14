@@ -4,9 +4,17 @@ from __future__ import annotations
 
 import asyncio
 import atexit
+import sys
 import threading
 from collections.abc import Awaitable, Callable, Coroutine
+from types import TracebackType
 from typing import Any, TypeVar
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
 
 T = TypeVar("T")
 
@@ -147,3 +155,14 @@ class EventLoopThreadRunner:
             return
         loop.call_soon_threadsafe(loop.stop)
         self._thread.join()
+
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType,
+    ) -> None:
+        return self.close()

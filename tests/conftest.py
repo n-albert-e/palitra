@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import sys
 from collections.abc import Callable, Coroutine, Generator
 from typing import NoReturn
 
@@ -12,7 +13,10 @@ event_loop_policies: list[type[asyncio.AbstractEventLoopPolicy]] = [
     asyncio.DefaultEventLoopPolicy
 ]
 try:
-    import uvloop  # type: ignore
+    if sys.platform == "win32":
+        import winloop as uvloop
+    else:
+        import uvloop
 
     event_loop_policies.append(uvloop.EventLoopPolicy)
 except ImportError:
