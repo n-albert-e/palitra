@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import asyncio
 import atexit
+import sys
 import threading
 from collections.abc import Awaitable, Callable, Coroutine
 from types import TracebackType
 from typing import Any, TypeVar
 
-import sys
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
