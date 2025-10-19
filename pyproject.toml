@@ -1,6 +1,6 @@
 [project]
 name = "palitra"
-version = "0.0.1-0001"
+version = "0.0.1-0002"
 description = "Run async functions seamlessly from sync code using a persistent background event loop."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -32,9 +32,9 @@ classifiers = [
 dependencies = ["typing_extensions>=4.0.0; python_version < '3.11'"]
 
 [project.urls]
-Homepage = "https://github.com/abebus/palitra"
-Repository = "https://github.com/abebus/palitra"
-Documentation = "https://github.com/abebus/palitra/tree/main/docs"
+Homepage = "https://github.com/n-albert-e/palitra"
+Repository = "https://github.com/n-albert-e/palitra"
+Documentation = "https://github.com/n-albert-e/palitra/tree/main/docs"
 
 [dependency-groups]
 dev = [
