@@ -32,9 +32,9 @@ classifiers = [
 dependencies = ["typing_extensions>=4.0.0; python_version < '3.10'"]
 
 [project.urls]
-Homepage = "https://github.com/abebus/palitra"
-Repository = "https://github.com/abebus/palitra"
-Documentation = "https://github.com/abebus/palitra/tree/main/docs"
+Homepage = "https://github.com/n-albert-e/palitra"
+Repository = "https://github.com/n-albert-e/palitra"
+Documentation = "https://github.com/n-albert-e/palitra/tree/main/docs"
 
 [dependency-groups]
 dev = [
